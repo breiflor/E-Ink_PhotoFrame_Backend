@@ -1,3 +1,5 @@
 {
-  "debug" : true
+  "debug" : true,
+  "height" : 480,
+  "width": 800
 }
