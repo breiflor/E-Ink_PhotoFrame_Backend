@@ -33,6 +33,7 @@ class ImageProcessingPipline:
         if self.debug :
             cv2.imshow("Loaded image", image)
             cv2.waitKey(0)
+        #TODO store in the right format
         return image
 
 
@@ -102,7 +103,7 @@ class ImageProcessingPipline:
         imagepath = self.path.absolute().name+"/"+n+".png"
         binpath = self.path.absolute().name+"/"+n
         cv2.imwrite(imagepath,image)
-        cv2.imwrite("binpath.bmp",image)
+        #cv2.imwrite("binpath.bmp",image)
         np.save(binpath,bin)
 
 
