@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import json
+import pathlib
 
 class ImageProcessingPipline:
     """
@@ -13,13 +14,17 @@ class ImageProcessingPipline:
         :param configfile: path to the json config file. The json contains all parameters.
         :type configfile: string
         """
+
         self.config = json.load(open(configfile,))
+        self.storagepath = self.config["path"]
         self.debug = self.config["debug"]
         self.height = self.config["height"]
         self.width = self.config["width"]
         #self.color_palette = np.array([[255,255,255],[0,0,255],[0,255,0],[255,0,0],[0,0,0]]) #RGB Palette
         self.color_palette = np.array([[255, 255, 255],[50, 53, 120],[52, 103, 78],[205, 87, 85],[236, 216, 100],[206, 120, 95],[0, 0, 0]]) #TODO ajust color palette and load it via Json
         self.color_palette = self.color_palette/255
+        self.path = pathlib.Path(self.storagepath)
+        self.path.mkdir(parents=True, exist_ok=True)
 
     def load_image(self, img):
         #loads image in Class
@@ -52,6 +57,7 @@ class ImageProcessingPipline:
         if self.debug :
             cv2.imshow("converted Image", image)
             cv2.waitKey(0)
+
         pass
 
     def get_new_val(self,old_val):
@@ -68,6 +74,8 @@ class ImageProcessingPipline:
         arr = np.array(img, dtype=float) / 255
 
         for ir in range(self.height):
+            if self.debug :
+                print("Progress"+str(100*ir/self.height)+"%")
             for ic in range(self.width):
                 # NB need to copy here for RGB arrays otherwise err will be (0,0,0)!
                 old_val = arr[ir, ic].copy()
@@ -75,6 +83,7 @@ class ImageProcessingPipline:
                 arr[ir, ic] = new_val
                 err = old_val - new_val
                 # In this simple example, we will just ignore the border pixels.
+
                 if ic < self.width - 1:
                     arr[ir, ic+1] += err * 7/16
                 if ir < self.height - 1:
@@ -88,15 +97,22 @@ class ImageProcessingPipline:
         return carr
 
 
-    def store(self,path):
-        pass
+    def store(self,image,bin,name):
+        n = pathlib.Path(name).name.strip(pathlib.Path(name).suffix)
+        imagepath = self.path.absolute().name+"/"+n+".png"
+        binpath = self.path.absolute().name+"/"+n
+        cv2.imwrite(imagepath,image)
+        cv2.imwrite("binpath.bmp",image)
+        np.save(binpath,bin)
 
-    def process_and_store(self,img,path):
+
+    def process_and_store(self,img):
         image = self.resize(self.load_image(img))
         bimg = self.process_image(image)
+        self.store(image,bimg,img)
 
 
 
 if __name__ == "__main__":
     processor = ImageProcessingPipline()
-    processor.process_and_store("test_image.jpg",".")
+    processor.process_and_store("test_image.jpg")
