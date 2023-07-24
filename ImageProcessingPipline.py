@@ -56,11 +56,10 @@ class ImageProcessingPipline:
         image = self.fs_dither(img)
         panel = self.create_array(image)
         byteimage = self.calculate_panel_array(panel)
-        byteimage.tofile("test.csv",sep=",")
         if self.debug :
             cv2.imshow("converted Image", image)
             cv2.waitKey(0)
-        return image
+        return image,byteimage
 
     def get_new_val(self,old_val):
         idx = np.argmin(np.sum((old_val[None,:] - self.color_palette)**2, axis=1))
@@ -101,12 +100,6 @@ class ImageProcessingPipline:
         return carr
 
     def create_array(self,img):
-        """
-        Floyd-Steinberg dither the image img into a palette with nc colours per
-        channel.
-
-        """
-
         arr = np.array(img, dtype=float) / 255
         panel = [np.zeros((self.width,self.height)),np.zeros((self.width,self.height)),np.zeros((self.width,self.height)),np.zeros((self.width,self.height)),np.zeros((self.width,self.height)),np.zeros((self.width,self.height)),np.zeros((self.width,self.height))]
 
@@ -126,15 +119,14 @@ class ImageProcessingPipline:
     def store(self,image,bin,name):
         n = pathlib.Path(name).name.strip(pathlib.Path(name).suffix)
         imagepath = self.path.absolute().name+"/"+n+".png"
-        binpath = self.path.absolute().name+"/"+n
+        binpath = self.path.absolute().name+"/"+n+".csv"
         cv2.imwrite(imagepath,image)
-        #cv2.imwrite("binpath.bmp",image)
-        np.save(binpath,bin)
+        bin.tofile(binpath, sep=",")
 
 
     def process_and_store(self,img):
         image = self.resize(self.load_image(img))
-        bimg = self.process_image(image)
+        image,bimg = self.process_image(image)
         self.store(image,bimg,img)
 
     def calculate_panel_array(self, panel):
@@ -146,7 +138,6 @@ class ImageProcessingPipline:
                     if panel[i][ic*2][ir] > 0:
                         entry += i
                     if panel[i][ic*2+1][ir] > 0: #MSB
-                        print("Was geht ab")
                         entry += (i*16) #Bitshift by 4 ;)
                 arr[ir][ic]= entry
         print(arr)
@@ -155,4 +146,4 @@ class ImageProcessingPipline:
 
 if __name__ == "__main__":
     processor = ImageProcessingPipline()
-    processor.process_and_store("test_image3.jpg")
+    processor.process_and_store("test_image.jpg")
