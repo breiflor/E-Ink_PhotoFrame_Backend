@@ -8,7 +8,7 @@ class ImageProcessingPipline:
             This class, implements the Image Processing needed to generate the BIN file from a png or jpg.
     """
 
-    def __init__(self,configfile = "config/imageProcessing.json"):
+    def __init__(self,path= "./storage",configfile = "config/imageProcessing.json",):
         """
         inits all the parmeters
         :param configfile: path to the json config file. The json contains all parameters.
@@ -16,7 +16,7 @@ class ImageProcessingPipline:
         """
 
         self.config = json.load(open(configfile,))
-        self.storagepath = self.config["path"]
+        self.storagepath = path
         self.debug = self.config["debug"]
         self.height = self.config["height"]
         self.width = self.config["width"]

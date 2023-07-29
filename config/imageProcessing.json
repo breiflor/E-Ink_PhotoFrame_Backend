@@ -2,7 +2,6 @@
   "debug" : true,
   "height" : 480,
   "width": 800,
-  "path": "./storage",
   "color_palette": {
     "black": [0, 0, 0],
     "white": [255, 255, 255],
