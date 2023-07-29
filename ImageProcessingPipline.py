@@ -23,7 +23,8 @@ class ImageProcessingPipline:
         #self.color_palette = np.array([[0, 0, 0],[255, 255, 255],[0, 255, 0],[255, 0, 0],[0, 0, 255],[0, 255, 255],[0, 128, 255]]) #TODO ajust color palette and load it via Json
         #self.color_palette = np.array([[0, 0, 0],[255, 255, 255],[19, 100, 10],[106, 37, 47],[10, 10,189],[0, 200, 255],[10, 52,236]]) # mesured
         #self.color_palette = np.array([[0, 0, 0],[255, 255, 255],[19, 255, 10],[255, 37, 47],[10, 10,255],[0, 200, 255],[10, 52,255]])
-        self.color_palette = np.array([[0, 0, 0],[255, 255, 255],[19*2.5, 100*2.5, 10*2.5],[106*2.4, 37*2.4, 0*2.4],[10*1.349, 10*1.349,189*1.349],[0, 200, 255],[10*1.08, 52*1.08,236*1.08]])
+        #self.color_palette = np.array([[0, 0, 0],[255, 255, 255],[19*2.5, 100*2.5, 10*2.5],[106*2.4, 37*2.4, 0*2.4],[10*1.349, 10*1.349,189*1.349],[0, 200, 255],[10*1.08, 52*1.08,236*1.08]])
+        self.color_palette = self.load_color_palette(self.config["color_palette"])
         self.color_palette = self.color_palette/255
         self.path = pathlib.Path(self.storagepath)
         self.path.mkdir(parents=True, exist_ok=True)
@@ -145,6 +146,8 @@ class ImageProcessingPipline:
         print(arr)
         return arr
 
+    def load_color_palette(self, palette):
+        return np.array([palette["black"],palette["white"],palette["green"],palette["blue"],palette["red"],palette["yellow"],palette["orange"]])
 
 if __name__ == "__main__":
     processor = ImageProcessingPipline()

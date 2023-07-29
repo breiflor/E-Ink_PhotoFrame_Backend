@@ -2,6 +2,14 @@
   "debug" : true,
   "height" : 480,
   "width": 800,
-  "path": "./storage"
-
+  "path": "./storage",
+  "color_palette": {
+    "black": [0, 0, 0],
+    "white": [255, 255, 255],
+    "green": [38, 250, 25],
+    "blue": [255, 89, 0],
+    "red": [13, 13,255],
+    "yellow":[0, 200, 255],
+    "orange" : [10, 53,255]
+  }
 }
