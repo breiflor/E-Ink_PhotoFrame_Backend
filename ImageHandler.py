@@ -1,6 +1,8 @@
 from ImageProcessingPipline import ImageProcessingPipline
 import json
 from pathlib import Path
+import numpy as np
+import cv2
 
 class ImageHandler:
 
@@ -34,8 +36,17 @@ class ImageHandler:
         self.scan_for_images()
 
     def get_image_array(self,img_name):
-        pass
+        p = self.img_name_to_csv_path(img_name)
+        return np.fromfile(p,dtype=np.uint8,sep=",")
 
+    def show_image(self,img_name):
+        p = self.img_name_to_png_path(img_name)
+        cv2.imshow(img_name,self.pipline.load_image(p.__str__()))
+        cv2.waitKey(0)
+
+    def get_image(self,img_name):
+        p = self.img_name_to_png_path(img_name)
+        return self.pipline.load_image(p.__str__())
 
     def img_name_to_png_path(self,name):
         return Path(self.config["path"]+"/"+name).with_suffix(".png")
@@ -48,4 +59,7 @@ class ImageHandler:
 
 if __name__ == "__main__":
     imhandler = ImageHandler()
-    imhandler.remove_image("test_image2.png")
+    #imhandler.remove_image("test_image2.png")
+    #imhandler.add_image("test_image2.jpg")
+    print(imhandler.get_image_array("test_image3"))
+    imhandler.show_image("test_image4")

@@ -48,6 +48,8 @@ class ImageProcessingPipline:
         :return: resized image
         :rtype: cv img mat
         """
+        if img.shape[:2][0] > img.shape[:2][1]: # autorotate images before scaling
+            img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
         image = cv2.resize(img,(self.width,self.height), interpolation= cv2.INTER_AREA)
         if self.debug :
             cv2.imshow("Resized Image", image)
