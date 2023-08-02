@@ -54,7 +54,7 @@ class Eink_Panel:
         if self.state == "WAIT":
             #if datetime.now() - self.last_update < datetime.timedelta(minutes=self.config["refresh"]):
             self.state = "SENT SECTION 1"
-            data = {"part": 1, "img": self.image[0:self.quarter_pixels-1]} #maybe a conversion is needed here
+            data = {"part": 1, "img": self.image[0:self.quarter_pixels-1].to_string()} #maybe a conversion is needed here
             self.client.publish(self.send_topic,json.dumps(data))
 
     def send_image(self,part):
@@ -81,10 +81,15 @@ class Eink_Panel:
 
     def load_next_image(self):
         if self.config["current_image"] == "no data - waiting for panel connection":
-            self.next_image_name = self.config["image"][0]
+            self.next_image_name = self.config["images"][0]
         else :
             try:
-                self.next_image_name = self.config["image"][self.config["image"].index(self.config["current_image"])]
+                self.next_image_name = self.config["images"][(self.config["images"].index(self.config["current_image"])+1)%len(self.config["images"])]
             except:
-                self.next_image_name = self.config["image"][0]
+                self.next_image_name = self.config["images"][0]
         return  self.img_handler.get_image_array(self.next_image_name)
+
+if __name__ == "__main__":
+    panel = Eink_Panel("eink_panel_storage/eink1.json")
+    while(1):
+        pass
