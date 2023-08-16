@@ -59,7 +59,7 @@ class ImageHandler:
 
 if __name__ == "__main__":
     imhandler = ImageHandler()
-    #imhandler.remove_image("test_image2.png")
-    #imhandler.add_image("test_image2.jpg")
-    print(imhandler.get_image_array("test_image3"))
-    imhandler.show_image("test_image4")
+    imhandler.remove_image("test_image2.png")
+    imhandler.add_image("test_image2.jpg")
+    print(imhandler.get_image_array("test_image2"))
+    imhandler.show_image("test_image2")

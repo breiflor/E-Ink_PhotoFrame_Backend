@@ -11,6 +11,7 @@ class PanelManager:
 
     def load_panels(self):
         self.panels = []
+        Path(self.eink_config_storage).mkdir(parents=True, exist_ok=True)
         for asset in Path(self.eink_config_storage).absolute().iterdir():
             if asset.suffix == ".json":
                 self.panels.append(asset.name)
