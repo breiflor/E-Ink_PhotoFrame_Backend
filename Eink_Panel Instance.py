@@ -13,13 +13,12 @@ class NumpyArrayEncoder(json.JSONEncoder):
 
 class Eink_Panel:
 
-    def __init__(self,configfile,mqtt_settings = "config/mqtt_config.cfg"):
+    def __init__(self,configfile,mqtt_settings = "config/mqtt_config1.cfg"):
         self.config = json.load(open(configfile,))
         mqtt_data = json.load(open(mqtt_settings))
         self.height = 480
         self.width = 800
         self.quarter_pixels = int(self.height*self.width/4/2)
-        print(self.quarter_pixels)
         self.state = "no Connection"
         self.last_update = None
         self.next_image_name = None
