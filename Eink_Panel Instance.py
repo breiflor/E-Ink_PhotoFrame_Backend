@@ -3,6 +3,13 @@ from datetime import datetime,timedelta
 
 from paho.mqtt import client as mqtt_client
 from ImageHandler import ImageHandler
+import numpy as np
+
+class NumpyArrayEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 class Eink_Panel:
 
@@ -11,7 +18,8 @@ class Eink_Panel:
         mqtt_data = json.load(open(mqtt_settings))
         self.height = 480
         self.width = 800
-        self.quarter_pixels = self.height*self.width/4
+        self.quarter_pixels = int(self.height*self.width/4/2)
+        print(self.quarter_pixels)
         self.state = "no Connection"
         self.last_update = None
         self.next_image_name = None
@@ -46,37 +54,40 @@ class Eink_Panel:
 
     def reset(self):
         self.state = "WAIT"
-        self.last_update = datetime.now()
+        self.last_update = None
 
     def img_request(self):
         if self.state == "no Connection":
             self.state = "WAIT"
         if self.state == "WAIT":
-            #if datetime.now() - self.last_update < datetime.timedelta(minutes=self.config["refresh"]):
-            self.state = "SENT SECTION 1"
-            data = {"part": 1, "img": self.image[0:self.quarter_pixels-1].to_string()} #maybe a conversion is needed here
-            self.client.publish(self.send_topic,json.dumps(data))
+            if self.last_update is None or  datetime.now() - self.last_update > timedelta(minutes=self.config["refresh"]):
+                self.state = "SENT SECTION 1"
+                data = {"part": 1, "img": json.dumps(self.image[0:self.quarter_pixels-1], cls=NumpyArrayEncoder)}
+                self.client.publish(self.send_topic,json.dumps(data))
+            else:
+                data = {"error": "Too early request"}
+                self.client.publish(self.send_topic,json.dumps(data))
 
     def send_image(self,part):
-        if self.state == "SENT SECTION 1" and part == 1 :
+        if self.state == "SENT SECTION 1" and part == "1" :
             self.state = "SENT SECTION 2"
-            data = {"part": 2, "img": self.image[self.quarter_pixels:(2*self.quarter_pixels-1)]} #maybe a conversion is needed here
+            data = {"part": 2, "img": json.dumps(self.image[self.quarter_pixels:(2*self.quarter_pixels-1)], cls=NumpyArrayEncoder)}
             self.client.publish(self.send_topic,json.dumps(data))
-        elif self.state == "SENT SECTION 2" and part == 2 :
+        elif self.state == "SENT SECTION 2" and part == "2" :
             self.state = "SENT SECTION 3"
-            data = {"part": 3, "img": self.image[2*self.quarter_pixels:(3*self.quarter_pixels-1)]} #maybe a conversion is needed here
+            data = {"part": 3, "img": json.dumps(self.image[2*self.quarter_pixels:(3*self.quarter_pixels-1)], cls=NumpyArrayEncoder)}
             self.client.publish(self.send_topic,json.dumps(data))
-        elif self.state == "SENT SECTION 3" and part == 3 :
+        elif self.state == "SENT SECTION 3" and part == "3" :
             self.state = "SENT SECTION 4"
-            data = {"part": 4, "img": self.image[3*self.quarter_pixels:(4*self.quarter_pixels-1)]} #maybe a conversion is needed here
+            data = {"part": 4, "img": json.dumps(self.image[3*self.quarter_pixels:(4*self.quarter_pixels-1)], cls=NumpyArrayEncoder)}
             self.client.publish(self.send_topic,json.dumps(data))
-        elif self.state == "SENT SECTION 4" and part == 4 :
+        elif self.state == "SENT SECTION 4" and part == "4" :
             self.state = "Update Status Infos"
             data = {"image_name":self.next_image_name,"refresh":self.config["refresh"]}
             self.client.publish(self.send_topic,json.dumps(data))
-        elif self.state == "Update Status Infos" and part == 5:
+        elif self.state == "Update Status Infos" and part == "5":
             self.image = self.load_next_image()
-            self.last_update = datetime.time()
+            self.last_update = datetime.now()
             self.state = "WAIT"
 
     def load_next_image(self):
