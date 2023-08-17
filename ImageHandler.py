@@ -62,4 +62,4 @@ if __name__ == "__main__":
     imhandler.remove_image("test_image2.png")
     imhandler.add_image("test_image2.jpg")
     print(imhandler.get_image_array("test_image2"))
-    imhandler.show_image("test_image2")
+    print(imhandler.get_image("test_image2"))

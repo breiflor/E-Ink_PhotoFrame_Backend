@@ -31,12 +31,11 @@ class ImageProcessingPipline:
 
     def load_image(self, img):
         #loads image in Class
-
-        image = cv2.VideoCapture(img).read()[1]
+        print(img)
+        image = cv2.imread(img,cv2.IMREAD_UNCHANGED)
         if self.debug :
             cv2.imshow("Loaded image", image)
             cv2.waitKey(0)
-        #TODO store in the right format
         return image
 
 

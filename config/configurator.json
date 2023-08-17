@@ -1,5 +1,7 @@
 {
   "debug": true,
   "panel_data_dir": "./panels",
-  "imageProcessing.json": "config/imageProcessing.json"
+  "imageProcessing.json": "config/imageProcessing.json",
+  "img_handler": "config/imageHandler.json",
+  "panel_Manager" : "config/panelManager.json"
 }

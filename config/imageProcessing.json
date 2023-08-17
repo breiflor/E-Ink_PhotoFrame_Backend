@@ -1,5 +1,5 @@
 {
-  "debug" : true,
+  "debug" : false,
   "height" : 480,
   "width": 800,
   "color_palette": {
