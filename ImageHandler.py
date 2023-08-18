@@ -26,6 +26,14 @@ class ImageHandler:
         self.pipline.process_and_store(img)
         self.scan_for_images()
 
+    def preeview_image(self,img):
+        return self.pipline.process_image(self.pipline.resize(img))[0] #TODO Performace Optimization when caching data
+
+    def add_image(self,img,name):
+        imgpath = self.pipline.process_and_store(img,name)
+        self.scan_for_images()
+        return imgpath
+
     def remove_image(self,img_name):
         p = self.img_name_to_png_path(img_name)
         if p.is_file():

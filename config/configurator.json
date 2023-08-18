@@ -3,5 +3,8 @@
   "panel_data_dir": "./panels",
   "imageProcessing.json": "config/imageProcessing.json",
   "img_handler": "config/imageHandler.json",
-  "panel_Manager" : "config/panelManager.json"
+  "panel_Manager" : "config/panelManager.json",
+  "ip": "0.0.0.0",
+  "port": "8080",
+  "upload_port": "8081"
 }

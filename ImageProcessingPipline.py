@@ -126,12 +126,18 @@ class ImageProcessingPipline:
         binpath = self.path.absolute().name+"/"+n+".csv"
         cv2.imwrite(imagepath,image)
         bin.tofile(binpath, sep=",")
+        return imagepath
 
 
     def process_and_store(self,img):
         image = self.resize(self.load_image(img))
         image,bimg = self.process_image(image)
         self.store(image,bimg,img)
+
+    def process_and_store(self,img,name):
+        image = self.resize(self.load_image(img))
+        image,bimg = self.process_image(image)
+        return self.store(image,bimg,name)
 
     def calculate_panel_array(self, panel):
         arr = np.zeros((self.height,int(self.width/2)),dtype=np.uint8)
