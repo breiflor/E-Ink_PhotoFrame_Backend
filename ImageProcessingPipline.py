@@ -126,7 +126,7 @@ class ImageProcessingPipline:
         binpath = self.path.absolute().name+"/"+n+".csv"
         cv2.imwrite(imagepath,image)
         bin.tofile(binpath, sep=",")
-        return imagepath
+        return n
 
 
     def process_and_store(self,img):

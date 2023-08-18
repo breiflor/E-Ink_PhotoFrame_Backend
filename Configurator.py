@@ -1,6 +1,5 @@
 import numpy as np
 from threading import Thread
-#import PySimpleGUI as  sg
 import PySimpleGUIWeb as sg
 import cv2
 import json
@@ -20,7 +19,6 @@ class Configurator:
         self.current_image = self.imghandler.list_images()[0]
         self.image_mode = "add to Eink Panel"
         self.layout = self.create_layout()
-        #self.window = sg.Window('EinkPanelConfigurator', self.layout)
         self.flth = Thread(target=app.run,args=(self.config["ip"],self.config["upload_port"]))
         self.flth.daemon = True
         self.flth.start()
@@ -29,10 +27,10 @@ class Configurator:
         self.run_gui()
 
     def create_layout(self):
-        return  [[sg.Text('EInk Panel Configurator'),sg.Button(button_text="upload new Image",key="-ADD-"),sg.FileBrowse("Browse Files"),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
+        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
                  [sg.Image(self.imghandler.img_name_to_png_path(self.current_image).__str__(),key="-IMAGE-")],
-                 [sg.Input(default_text=self.current_image,key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button(self.image_mode,key="-MODE-")],
-                 [sg.Combo(self.imghandler.list_images()),sg.Text("Preeview of all Images here: ")],
+                 [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button(self.image_mode,key="-MODE-")],
+                 [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
                  [sg.Column([[sg.Text("Panels")],[sg.Listbox(self.panel_manager.list_panels(),change_submits=True,key="-PANELS-",auto_size_text=True,size=(200,200))]]),
                   sg.Column([[sg.Text("Images")],[sg.Listbox(["select Panel to view Images"],change_submits=True,auto_size_text=True,size=(200,200),key="-IMAGES-")]]),
                   sg.Column([[sg.Button("ADD Panel")],[sg.Text("NAME"),sg.InputText(default_text="SelectPanel")],
@@ -51,7 +49,7 @@ class Configurator:
 
     def update_screen(self):
         if self.current_image is None:
-            self.window["-FILE-"].update("Enter Name Here",visible=True)
+            self.window["-FILE-"].update("",visible=True)
             #self.window["--"].update()
             self.window["-SAVE-"].update(visible=True)
             self.window["-DEL-"].update(visible=False)
@@ -59,8 +57,8 @@ class Configurator:
         else:
             self.window['-IMAGE-'].update(self.imghandler.img_name_to_png_path(self.current_image).__str__())
             self.window["-SAVE-"].update(visible=False)
-            self.window["-FILE-"].update(visible=False)
             self.window["-DEL-"].update(visible=True)
+            self.window["-FILE-"].update(self.current_image)
             if self.current_panel is None:
                 self.window["-MODE-"].update(visible=False)
             else:
@@ -72,13 +70,20 @@ class Configurator:
 
     def run_gui(self):
         while(1): #TODO make close button evtl
-            event, values = self.window.read()
+            event, values = self.window.read(2)
             if event is not "__TIMEOUT__":
                 print(event,values)
-            if event == "-ADD-":
-                print("ADD")
             if event == "-SAVE-":
-                self.current_image = self.imghandler.add_image("uploaded_image.png",values["-FILE-"])
+                self.current_image = self.imghandler.add_image("uploaded_image.png",values["-FILE-"])+".png"
+                self.window["-IMG_LIST-"].update(values=self.imghandler.list_images())
+                self.update_screen()
+            if event == "-IMG_LIST-":
+                self.current_image = values["-IMG_LIST-"]
+                self.update_screen()
+            if event == "-DEL-":
+                self.imghandler.remove_image(values["-FILE-"])
+                self.window["-IMG_LIST-"].update(values=self.imghandler.list_images())
+                self.current_image = self.imghandler.list_images()[0]
                 self.update_screen()
 
     def image_is_mapped_to_panel(self):

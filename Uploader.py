@@ -12,7 +12,6 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['image']
-    print(file.name)
     image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
     cbk(image)
     return 'Bild erfolgreich hochgeladen!'
