@@ -44,7 +44,6 @@ class PanelManager:
             p = Path(self.eink_config_storage+"/"+name).with_suffix(".json")
             panel = json.load(open(p,))
             panel["images"].append(Path(image).with_suffix("").name)
-            p = self.eink_config_storage+"/"+name+".json"
             with open(p,"wt") as fp:
                 json.dump(panel,fp)
             return True
@@ -57,7 +56,6 @@ class PanelManager:
             p = Path(self.eink_config_storage+"/"+name).with_suffix(".json")
             panel = json.load(open(p,))
             panel["images"].remove(Path(image).with_suffix("").name)
-            p = self.eink_config_storage+"/"+name+".json"
             with open(p,"wt") as fp:
                 json.dump(panel,fp)
             return True
@@ -80,7 +78,6 @@ class PanelManager:
             p = Path(self.eink_config_storage+"/"+name).with_suffix(".json")
             panel = json.load(open(p,))
             panel["refresh"] = time
-            p = self.eink_config_storage+"/"+name+".json"
             with open(p,"wt") as fp:
                 json.dump(panel,fp)
             if self.debug: print("Changed refresh time to",time)

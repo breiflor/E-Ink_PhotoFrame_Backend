@@ -17,7 +17,6 @@ class Configurator:
         self.imghandler = ImageHandler(self.config["img_handler"])
         self.panel_manager = PanelManager(self.config["panel_Manager"])
         self.current_image = self.imghandler.list_images()[0]
-        self.image_mode = "add to Eink Panel"
         self.layout = self.create_layout()
         self.flth = Thread(target=app.run,args=(self.config["ip"],self.config["upload_port"]))
         self.flth.daemon = True
@@ -29,12 +28,12 @@ class Configurator:
     def create_layout(self):
         return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
                  [sg.Image(self.imghandler.img_name_to_png_path(self.current_image).__str__(),key="-IMAGE-")],
-                 [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button(self.image_mode,key="-MODE-")],
+                 [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button("add to Eink Panel",key="-MODE-")],
                  [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
                  [sg.Column([[sg.Text("Panels")],[sg.Listbox(self.panel_manager.list_panels(),change_submits=True,key="-PANELS-",auto_size_text=True,size=(200,200))]]),
                   sg.Column([[sg.Text("Images")],[sg.Listbox(["select Panel to view Images"],change_submits=True,auto_size_text=True,size=(200,200),key="-IMAGES-")]]),
-                  sg.Column([[sg.Button("ADD Panel")],[sg.Text("NAME"),sg.InputText(default_text="SelectPanel")],
-                [sg.Text("sleep TIME in min"),sg.InputText(default_text="SelectPanel")],[sg.Button("STORE")]])
+                  sg.Column([[sg.Button("Add Panel"),sg.Button("Remove Panel")],[sg.Text("NAME",visible=False,key="-NAME-"),sg.InputText(default_text="Fill in Panel name",key="-Name-",visible=False)],
+                [sg.Text("sleep TIME in min"),sg.InputText(default_text="SelectPanel",key="-TIME-")],[sg.Button("STORE")]])
                   ]]
 
     def __del__(self):
@@ -62,10 +61,13 @@ class Configurator:
             if self.current_panel is None:
                 self.window["-MODE-"].update(visible=False)
             else:
+                self.window["-Name-"].update(visible=False)
+                self.window["-NAME-"].update(visible=False)
                 if self.image_is_mapped_to_panel():
                     self.window["-MODE-"].update("remove_from_panel",visible=True)
                 else:
                     self.window["-MODE-"].update("add_to_panel",visible=True)
+                self.window["-TIME-"].update(self.panel_manager.get_refresh_time(self.current_panel))
 
 
     def run_gui(self):
@@ -82,15 +84,38 @@ class Configurator:
                 self.update_screen()
             if event == "-DEL-":
                 self.imghandler.remove_image(values["-FILE-"])
-                self.window["-IMG_LIST-"].update(values=self.imghandler.list_images())
+                self.window["-IMG_LIST-"].update(values=self.imghandler.list_images()) #TODO safe delete
                 self.current_image = self.imghandler.list_images()[0]
                 self.update_screen()
+            if event == "-PANELS-":
+                self.current_panel = values["-PANELS-"][0]
+                self.window["-IMAGES-"].update(self.panel_manager.list_images_from_panel(self.current_panel))
+                self.update_screen()
+            if event == "-IMAGES-":
+                self.current_image = values["-IMAGES-"][0]+".png"
+                self.update_screen()
+            if event == "-MODE-":
+                if self.image_is_mapped_to_panel():
+                    self.panel_manager.remove_image_from_panel(self.current_panel,self.current_image)
+                else:
+                    self.panel_manager.add_image_to_panel(self.current_panel,self.current_image)
+                self.window["-IMAGES-"].update(self.panel_manager.list_images_from_panel(self.current_panel))
+                self.update_screen()
+            if event == "STORE":
+                if self.current_panel is not None:
+                    self.panel_manager.change_refresh_time(self.current_panel,int(values["-TIME-"]))
+                self.update_screen()
+            if event == "Add Panel":
+                self.current_panel = None
+                self.window["-Name-"].update(visible=True)
+                self.window["-NAME-"].update(visible=True)
+                self.window["-TIME-"].update(30)
+
 
     def image_is_mapped_to_panel(self):
         try:
             for image in self.panel_manager.list_images_from_panel(self.current_panel):
-                print(image,self.current_image)
-                if image == self.current_image:
+                if image+".png" == self.current_image:
                     return True
         except:
             pass
