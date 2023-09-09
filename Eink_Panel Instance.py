@@ -90,7 +90,7 @@ class Eink_Panel:
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "SENT SECTION 4" and part == "4" :
             self.state = "Update Status Infos"
-            data = {"part":5,"image_name":self.next_image_name,"refresh":self.config["refresh"]}
+            data = {"part": 5,"refresh":self.config["refresh"],"image_name":self.next_image_name}
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "Update Status Infos" and part == "5":
             self.image = self.load_next_image()
