@@ -8,7 +8,15 @@ import numpy as np
 class NumpyArrayEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
-            return obj.tolist()
+            list = obj.tolist()
+            s = ""
+            for e in list:
+                if e <32:
+                    s= s + chr(e+40)
+                else:
+                    s = s+ chr(e)
+            return s
+
         return json.JSONEncoder.default(self, obj)
 
 class Eink_Panel:
@@ -82,7 +90,7 @@ class Eink_Panel:
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "SENT SECTION 4" and part == "4" :
             self.state = "Update Status Infos"
-            data = {"image_name":self.next_image_name,"refresh":self.config["refresh"]}
+            data = {"part":5,"image_name":self.next_image_name,"refresh":self.config["refresh"]}
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "Update Status Infos" and part == "5":
             self.image = self.load_next_image()
