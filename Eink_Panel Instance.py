@@ -22,6 +22,7 @@ class NumpyArrayEncoder(json.JSONEncoder):
 class Eink_Panel:
 
     def __init__(self,configfile,mqtt_settings = "config/mqtt_config1.cfg"):
+        self.configfile = configfile
         self.config = json.load(open(configfile,))
         mqtt_data = json.load(open(mqtt_settings))
         self.height = 480
@@ -93,6 +94,10 @@ class Eink_Panel:
             data = {"part": 5,"refresh":self.config["refresh"],"image_name":self.next_image_name}
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "Update Status Infos" and part == "5":
+            self.config = json.load(open(self.configfile,))
+            self.config["current_image"] = self.next_image_name
+            with open(self.configfile,"wt") as fp:
+                json.dump(self.config,fp)
             self.image = self.load_next_image()
             self.last_update = datetime.now()
             self.state = "WAIT"
