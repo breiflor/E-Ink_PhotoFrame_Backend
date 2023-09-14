@@ -5,19 +5,6 @@ from paho.mqtt import client as mqtt_client
 from ImageHandler import ImageHandler
 import numpy as np
 
-class NumpyArrayEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            list = obj.tolist()
-            s = ""
-            for e in list:
-                if e <32:
-                    s= s + chr(e+40)
-                else:
-                    s = s+ chr(e)
-            return s
-
-        return json.JSONEncoder.default(self, obj)
 
 class Eink_Panel:
 
@@ -70,24 +57,25 @@ class Eink_Panel:
         if self.state == "WAIT":
             if self.last_update is None or  datetime.now() - self.last_update > timedelta(minutes=self.config["refresh"]):
                 self.state = "SENT SECTION 1"
-                data = {"part": 1, "img": json.dumps(self.image[0:self.quarter_pixels-1], cls=NumpyArrayEncoder)}
+                data = {"part": 1, "img": self.image[0:self.quarter_pixels-1]}
                 self.client.publish(self.send_topic,json.dumps(data))
             else:
                 data = {"error": "Too early request"}
                 self.client.publish(self.send_topic,json.dumps(data))
 
+
     def send_image(self,part):
         if self.state == "SENT SECTION 1" and part == "1" :
             self.state = "SENT SECTION 2"
-            data = {"part": 2, "img": json.dumps(self.image[self.quarter_pixels:(2*self.quarter_pixels-1)], cls=NumpyArrayEncoder)}
+            data = {"part": 2, "img": self.image[self.quarter_pixels:(2*self.quarter_pixels-1)]}
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "SENT SECTION 2" and part == "2" :
             self.state = "SENT SECTION 3"
-            data = {"part": 3, "img": json.dumps(self.image[2*self.quarter_pixels:(3*self.quarter_pixels-1)], cls=NumpyArrayEncoder)}
+            data = {"part": 3, "img": self.image[2*self.quarter_pixels:(3*self.quarter_pixels-1)]}
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "SENT SECTION 3" and part == "3" :
             self.state = "SENT SECTION 4"
-            data = {"part": 4, "img": json.dumps(self.image[3*self.quarter_pixels:(4*self.quarter_pixels-1)], cls=NumpyArrayEncoder)}
+            data = {"part": 4, "img": self.image[3*self.quarter_pixels:]}
             self.client.publish(self.send_topic,json.dumps(data))
         elif self.state == "SENT SECTION 4" and part == "4" :
             self.state = "Update Status Infos"
@@ -110,7 +98,18 @@ class Eink_Panel:
                 self.next_image_name = self.config["images"][(self.config["images"].index(self.config["current_image"])+1)%len(self.config["images"])]
             except:
                 self.next_image_name = self.config["images"][0]
-        return  self.img_handler.get_image_array(self.next_image_name)
+        return self.serialize(self.img_handler.get_image_array(self.next_image_name))
+
+    def serialize(self,img):
+        s = ""
+        for e in img:
+            if e > 120:
+                print("Hell no")
+            if e <32:
+                s= s + chr(e+40)
+            else:
+                s = s+ chr(e)
+        return s
 
 if __name__ == "__main__":
     panel = Eink_Panel("eink_panel_storage/eink1.json")
