@@ -22,8 +22,8 @@ class ImageHandler:
     def list_images(self):
         return self.images
 
-    def add_image(self,img):
-        self.pipline.process_and_store(img)
+    def add_image_cmd(self,img):
+        self.pipline.process_and_store_cmd(img)
         self.scan_for_images()
 
     def preeview_image(self,img):
@@ -68,6 +68,7 @@ class ImageHandler:
 if __name__ == "__main__":
     imhandler = ImageHandler()
     imhandler.remove_image("test_image2.png")
-    imhandler.add_image("test_image2.jpg")
+    imhandler.add_image_cmd("test_image2.jpg")
+    imhandler.add_image_cmd("nosignal.jpg")
     print(imhandler.get_image_array("test_image2"))
     print(imhandler.get_image("test_image2"))

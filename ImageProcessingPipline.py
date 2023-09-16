@@ -129,7 +129,7 @@ class ImageProcessingPipline:
         return n
 
 
-    def process_and_store(self,img):
+    def process_and_store_cmd(self,img):
         image = self.resize(self.load_image(img))
         image,bimg = self.process_image(image)
         self.store(image,bimg,img)
@@ -158,4 +158,4 @@ class ImageProcessingPipline:
 
 if __name__ == "__main__":
     processor = ImageProcessingPipline()
-    processor.process_and_store("test_image.jpg")
+    processor.process_and_store_cmd("nosignal.jpg")
