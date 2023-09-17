@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import numpy as np
 import cv2
+import click
 
 class ImageHandler:
 
@@ -65,10 +66,21 @@ class ImageHandler:
     def img_name_to_csv_path(self,name):
         return Path(self.config["path"]+"/"+name).with_suffix(".csv")
 
+
+@click.command()
+@click.argument("cmd")
+@click.argument("filenames",nargs=-1)
+@click.option("--config","-c","config",envvar='PATHS',type=click.Path())
+def cli_(cmd,filenames,config):
+    if config is not None:
+        imhandler = ImageHandler(config)
+    else:
+        imhandler = ImageHandler()
+    for filename in filenames:
+        if cmd == "add":
+            imhandler.add_image_cmd(filename)
+        elif cmd == "remove":
+            imhandler.remove_image(filename)
+
 if __name__ == "__main__":
-    imhandler = ImageHandler()
-    imhandler.remove_image("test_image2.png")
-    imhandler.add_image_cmd("test_image2.jpg")
-    imhandler.add_image_cmd("nosignal.jpg")
-    print(imhandler.get_image_array("test_image2"))
-    print(imhandler.get_image("test_image2"))
+    cli_()
