@@ -71,7 +71,7 @@ class Configurator:
     def run_gui(self):
         while(1): #TODO make close button evtl
             event, values = self.window.read(2)
-            if event is not "__TIMEOUT__":
+            if event != "__TIMEOUT__":
                 if self.debug:
                     print(event,values)
             if event == "-SAVE-":

@@ -28,7 +28,7 @@ class Eink_Panel:
         self.client.on_connect = self.on_connect
         self.client.username_pw_set(mqtt_data["user"], mqtt_data["password"])
         self.client.connect(mqtt_data["broker"], mqtt_data["port"])
-        self.client.loop_start()
+        self.client.loop_forever()
 
     def __del__(self):
         self.client.loop_stop()
@@ -113,5 +113,3 @@ class Eink_Panel:
 
 if __name__ == "__main__":
     panel = Eink_Panel("eink_panel_storage/eink1.json")
-    while(1):
-        pass
