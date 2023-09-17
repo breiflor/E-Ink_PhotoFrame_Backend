@@ -32,7 +32,7 @@ class Configurator:
                  [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
                  [sg.Column([[sg.Text("Panels")],[sg.Listbox(self.panel_manager.list_panels(),change_submits=True,key="-PANELS-",auto_size_text=True,size=(200,200))]]),
                   sg.Column([[sg.Text("Images")],[sg.Listbox(["select Panel to view Images"],change_submits=True,auto_size_text=True,size=(200,200),key="-IMAGES-")]]),
-                  sg.Column([[sg.Button("Add Panel"),sg.Button("Remove Panel")],[sg.Text("NAME",visible=False,key="-NAME-"),sg.InputText(default_text="Fill in Panel name",key="-Name-",visible=False)],
+                  sg.Column([[sg.Button("Add Panel"),sg.Button("Remove Panel")],[sg.Text("NAME",key="-NAME-"),sg.InputText(default_text="Fill in Panel name",key="-Name-")],
                 [sg.Text("sleep TIME in min"),sg.InputText(default_text="SelectPanel",key="-TIME-")],[sg.Button("STORE")]])
                   ]]
 
@@ -61,8 +61,6 @@ class Configurator:
             if self.current_panel is None:
                 self.window["-MODE-"].update(visible=False)
             else:
-                self.window["-Name-"].update(visible=False)
-                self.window["-NAME-"].update(visible=False)
                 if self.image_is_mapped_to_panel():
                     self.window["-MODE-"].update("remove_from_panel",visible=True)
                 else:
@@ -74,7 +72,8 @@ class Configurator:
         while(1): #TODO make close button evtl
             event, values = self.window.read(2)
             if event is not "__TIMEOUT__":
-                print(event,values)
+                if self.debug:
+                    print(event,values)
             if event == "-SAVE-":
                 self.current_image = self.imghandler.add_image("uploaded_image.png",values["-FILE-"])+".png"
                 self.window["-IMG_LIST-"].update(values=self.imghandler.list_images())
@@ -106,11 +105,14 @@ class Configurator:
                     self.panel_manager.change_refresh_time(self.current_panel,int(values["-TIME-"]))
                 self.update_screen()
             if event == "Add Panel":
+                self.panel_manager.add_panel(values["-Name-"])
+                self.window["-Name-"].update("")
                 self.current_panel = None
-                self.window["-Name-"].update(visible=True)
-                self.window["-NAME-"].update(visible=True)
-                self.window["-TIME-"].update(30)
-
+                self.window["-PANELS-"].update(self.panel_manager.list_panels())
+            if event == "Remove Panel":
+                self.panel_manager.remove_panel(self.current_panel)
+                self.current_panel = None
+                self.window["-PANELS-"].update(self.panel_manager.list_panels())
 
     def image_is_mapped_to_panel(self):
         try:
