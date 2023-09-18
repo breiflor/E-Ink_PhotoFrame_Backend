@@ -103,8 +103,6 @@ class Eink_Panel:
     def serialize(self,img):
         s = ""
         for e in img:
-            if e > 120:
-                print("Hell no")
             if e <32:
                 s= s + chr(e+40)
             else:
