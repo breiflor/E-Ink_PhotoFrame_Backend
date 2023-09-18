@@ -26,7 +26,7 @@ class Configurator:
         self.run_gui()
 
     def create_layout(self):
-        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add"),sg.Button("Refresh")],
+        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
                  [sg.Image(self.imghandler.img_name_to_png_path(self.current_image).__str__(),key="-IMAGE-")],
                  [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button("add to Eink Panel",key="-MODE-")],
                  [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
