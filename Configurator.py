@@ -26,7 +26,7 @@ class Configurator:
         self.run_gui()
 
     def create_layout(self):
-        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
+        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add"),sg.Button("Refresh")],
                  [sg.Image(self.imghandler.img_name_to_png_path(self.current_image).__str__(),key="-IMAGE-")],
                  [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button("add to Eink Panel",key="-MODE-")],
                  [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
@@ -70,7 +70,7 @@ class Configurator:
 
     def run_gui(self):
         while(1): #TODO make close button evtl
-            event, values = self.window.read(2)
+            event, values = self.window.read()
             if event != "__TIMEOUT__":
                 if self.debug:
                     print(event,values)
@@ -80,6 +80,7 @@ class Configurator:
                 self.update_screen()
             if event == "-IMG_LIST-":
                 self.current_image = values["-IMG_LIST-"]
+                self.window["-FILE-"].update(self.current_image)
                 self.update_screen()
             if event == "-DEL-":
                 self.imghandler.remove_image(values["-FILE-"])
