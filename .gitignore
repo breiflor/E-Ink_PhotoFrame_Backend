@@ -138,6 +138,8 @@ venv.bak/
 
 # mkdocs documentation
 /site
+/storage
+/eink_panel_storage
 
 # mypy
 .mypy_cache/
