@@ -49,7 +49,28 @@ class ImageProcessingPipline:
         """
         if img.shape[:2][0] > img.shape[:2][1]: # autorotate images before scaling
             img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-        image = cv2.resize(img,(self.width,self.height), interpolation= cv2.INTER_AREA)
+        if self.config["stretch"]:
+            image = cv2.resize(img,(self.width,self.height), interpolation= cv2.INTER_AREA)
+        else:
+            scale_width = self.width/img.shape[:2][1]
+            scale_hight = self.height/img.shape[:2][0]
+            if scale_width < scale_hight:
+                scale = scale_width
+                if self.config["cut"]:
+                    scale = scale_hight
+            else:
+                scale = scale_hight
+                if self.config["cut"]:
+                    scale = scale_width
+            img = cv2.resize(img,(int(scale*img.shape[:2][1]),int(scale*img.shape[:2][0])), interpolation= cv2.INTER_AREA)
+            if self.config["cut"]:
+                image = img[0:self.height,0:self.width]
+            else:
+                filler = np.zeros([self.height,self.width-img.shape[:2][1],3],dtype=np.uint8)
+                filler.fill(self.config["fill"])
+                image = img[0:self.height,0:self.width]
+                image = np.column_stack([image,filler])
+        print(image.shape)
         if self.debug :
             cv2.imshow("Resized Image", image)
             cv2.waitKey(0)
@@ -158,4 +179,4 @@ class ImageProcessingPipline:
 
 if __name__ == "__main__":
     processor = ImageProcessingPipline()
-    processor.process_and_store_cmd("nosignal.jpg")
+    processor.process_and_store_cmd("sleepy.jpeg")

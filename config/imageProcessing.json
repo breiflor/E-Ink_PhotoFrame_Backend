@@ -10,5 +10,8 @@
     "red": [13, 13,255],
     "yellow":[0, 200, 255],
     "orange" : [10, 53,255]
-  }
+  },
+  "fill": 255,
+  "stretch": false,
+  "cut": false
 }
