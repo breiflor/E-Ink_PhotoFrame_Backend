@@ -1,9 +1,8 @@
 FROM ubuntu:latest
-#install prerequirements
 
 # Install Git
 RUN apt-get update -y && \
-    apt-get install -y git libglib2.0-0 libsm6 libxrender1 libxext6 libgl1-mesa-glx
+    apt-get install -y git libglib2.0-0 libsm6 libxrender1 libxext6 libgl1-mesa-glx nano
 
 RUN git clone https://github.com/breiflor/E-Ink_PhotoFrame_Backend
 
