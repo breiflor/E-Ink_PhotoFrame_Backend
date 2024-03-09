@@ -110,4 +110,4 @@ class Eink_Panel:
         return s
 
 if __name__ == "__main__":
-    panel = Eink_Panel("eink_panel_storage/test.json")
+    panel = Eink_Panel("eink_panel_storage/eink1.json")

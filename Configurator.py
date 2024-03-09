@@ -6,7 +6,7 @@ import json
 from ImageHandler import *
 from PanelManager import *
 from Uploader import *
-
+from Eink_Panel_Instance import *
 
 class Configurator:
 
@@ -21,6 +21,8 @@ class Configurator:
         self.flth = Thread(target=app.run,args=(self.config["ip"],self.config["upload_port"]))
         self.flth.daemon = True
         self.flth.start()
+        self.panel_handlers = []
+        self.start_panel_handlers()
         self.window = sg.Window('EinkPanelConfigurator', self.layout,web_ip=self.config["ip"],web_port=int(self.config["port"]),disable_close=True)
         set_cbk(self.uploaded_image)
         self.run_gui()
@@ -123,6 +125,14 @@ class Configurator:
         except:
             pass
         return False
+
+    def start_panel_handlers(self):
+        for panel_name in self.panel_manager.list_panels():
+            panel_handle = Thread(target=self.start_panel,args=(self,panel_name))
+            self.panel_handlers.append(panel_handle)
+
+    def start_panel(self,name):
+        instance = Eink_Panel(name)
 
 
 if __name__ == "__main__":

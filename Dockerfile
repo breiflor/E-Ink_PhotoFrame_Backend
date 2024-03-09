@@ -21,8 +21,5 @@ RUN  sed -i '30,42 d'  /usr/local/lib/python3.10/dist-packages/remi/gui.py
 #open ports
 EXPOSE 8080 8081 1883
 
-ENV CONFIG_PATH /E-Ink_PhotoFrame_Backend/config
-ENV STORAGE_PATH /E-Ink_PhotoFrame_Backend/storage
-ENV PANEL_PATH /E-Ink_PhotoFrame_Backend/panels
 #execute script
 CMD ["python3", "Configurator.py"]
