@@ -12,6 +12,7 @@ class ImageHandler:
         self.debug = self.config["debug"]
         self.pipline = ImageProcessingPipline(self.config["path"],self.config["imageProcessing.json"])
         self.scan_for_images()
+        self.sync_images()
 
     def scan_for_images(self):
         self.images = []
@@ -23,9 +24,10 @@ class ImageHandler:
     def list_images(self):
         return self.images
 
-    def add_image_cmd(self,img):
+    def add_image_cmd(self,img,rescan=True):
         self.pipline.process_and_store_cmd(img)
-        self.scan_for_images()
+        if rescan:
+            self.scan_for_images()
 
     def preeview_image(self,img):
         return self.pipline.process_image(self.pipline.resize(img))[0] #TODO Performace Optimization when caching data
@@ -35,14 +37,15 @@ class ImageHandler:
         self.scan_for_images()
         return imgpath
 
-    def remove_image(self,img_name):
+    def remove_image(self,img_name,rescan=True):
         p = self.img_name_to_png_path(img_name)
         if p.is_file():
             p.unlink()
         p_csv = self.img_name_to_csv_path(img_name)
         if p_csv.is_file():
             p_csv.unlink()
-        self.scan_for_images()
+        if rescan:
+            self.scan_for_images()
 
     def get_image_array(self,img_name):
         p = self.img_name_to_csv_path(img_name)
@@ -66,6 +69,20 @@ class ImageHandler:
     def img_name_to_csv_path(self,name):
         return Path(self.config["path"]+"/"+name).with_suffix(".csv")
 
+    def sync_images(self):
+        self.scan_for_images()
+        for asset in Path(self.config["sync_folder"]).absolute().iterdir():
+            if asset.name.strip(asset.suffix)+".png" in self.images:
+                self.images.remove(asset.name.strip(asset.suffix)+".png") # remove to see what is left
+            else:
+                self.add_image_cmd(str(asset),rescan=False)
+        for image in self.images:
+            self.remove_image(image,rescan=False)
+        self.scan_for_images()
+        return self.images
+
+
+
 
 @click.command()
 @click.argument("cmd")
@@ -83,4 +100,6 @@ def cli_(cmd,filenames,config):
             imhandler.remove_image(filename)
 
 if __name__ == "__main__":
-    cli_()
+    #cli_()
+    imhandler =ImageHandler()
+    imhandler.sync_images()

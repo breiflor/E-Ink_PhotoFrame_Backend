@@ -1,5 +1,6 @@
 {
   "debug": true,
   "imageProcessing.json": "config/imageProcessing.json",
-  "path": "./storage"
+  "path": "./storage",
+  "sync_folder" : "./sync_folder"
 }

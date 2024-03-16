@@ -23,12 +23,14 @@ class Configurator:
         self.flth.start()
         self.panel_handlers = []
         self.start_panel_handlers()
+        if self.config["image_sync"]:
+            self.last_sync = datetime.today().day-1 # needed for nightly updates
         self.window = sg.Window('EinkPanelConfigurator', self.layout,web_ip=self.config["ip"],web_port=int(self.config["port"]),disable_close=True)
         set_cbk(self.uploaded_image)
         self.run_gui()
 
     def create_layout(self):
-        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
+        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add"),sg.Button("SYNC")],
                  [sg.Image(self.imghandler.img_name_to_png_path(self.current_image).__str__(),key="-IMAGE-")],
                  [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button("add to Eink Panel",key="-MODE-")],
                  [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
@@ -72,6 +74,9 @@ class Configurator:
 
     def run_gui(self):
         while(1): #TODO make close button evtl
+            if self.config["image_sync"] :
+                if self.last_sync is not datetime.today().day:
+                    self.panel_manager.sync_image_list(self.imghandler.sync_images())
             event, values = self.window.read()
             if event != "__TIMEOUT__":
                 if self.debug:
@@ -96,6 +101,8 @@ class Configurator:
             if event == "-IMAGES-":
                 self.current_image = values["-IMAGES-"][0]+".png"
                 self.update_screen()
+            if event == "SYNC":
+                self.panel_manager.sync_image_list(self.imghandler.sync_images())
             if event == "-MODE-":
                 if self.image_is_mapped_to_panel():
                     self.panel_manager.remove_image_from_panel(self.current_panel,self.current_image)
