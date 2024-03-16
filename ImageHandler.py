@@ -74,7 +74,8 @@ class ImageHandler:
         for asset in Path(self.config["sync_folder"]).absolute().iterdir():
             if asset.name.strip(asset.suffix)+".png" in self.images:
                 self.images.remove(asset.name.strip(asset.suffix)+".png") # remove to see what is left
-            else:
+            elif asset.is_file():
+                print(str(asset))
                 self.add_image_cmd(str(asset),rescan=False)
         for image in self.images:
             self.remove_image(image,rescan=False)

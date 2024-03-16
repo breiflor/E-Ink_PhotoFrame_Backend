@@ -30,14 +30,14 @@ class Configurator:
         self.run_gui()
 
     def create_layout(self):
-        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add"),sg.Button("SYNC")],
+        return  [[sg.Text('EInk Panel Configurator'),sg.Text('File Upload via Browser: '+self.config["ip"]+":"+self.config["upload_port"]+"/add")],
                  [sg.Image(self.imghandler.img_name_to_png_path(self.current_image).__str__(),key="-IMAGE-")],
                  [sg.Input(default_text="Enter Name Here",key="-FILE-"), sg.Save(key="-SAVE-"),sg.Button("delete",key="-DEL-"),sg.Button("add to Eink Panel",key="-MODE-")],
                  [sg.Combo(self.imghandler.list_images(),change_submits=True,key="-IMG_LIST-",),sg.Text("Preeview of all Images here: ")],
                  [sg.Column([[sg.Text("Panels")],[sg.Listbox(self.panel_manager.list_panels(),change_submits=True,key="-PANELS-",auto_size_text=True,size=(200,200))]]),
                   sg.Column([[sg.Text("Images")],[sg.Listbox(["select Panel to view Images"],change_submits=True,auto_size_text=True,size=(200,200),key="-IMAGES-")]]),
                   sg.Column([[sg.Button("Add Panel"),sg.Button("Remove Panel")],[sg.Text("NAME",key="-NAME-"),sg.InputText(default_text="Fill in Panel name",key="-Name-")],
-                [sg.Text("sleep TIME in min"),sg.InputText(default_text="SelectPanel",key="-TIME-")],[sg.Button("STORE")]])
+                [sg.Text("sleep TIME in min"),sg.InputText(default_text="SelectPanel",key="-TIME-")],[sg.Button("STORE"),sg.Button("sync",visible=True)]])
                   ]]
 
     def __del__(self):
@@ -101,7 +101,7 @@ class Configurator:
             if event == "-IMAGES-":
                 self.current_image = values["-IMAGES-"][0]+".png"
                 self.update_screen()
-            if event == "SYNC":
+            if event == "sync":
                 self.panel_manager.sync_image_list(self.imghandler.sync_images())
             if event == "-MODE-":
                 if self.image_is_mapped_to_panel():
