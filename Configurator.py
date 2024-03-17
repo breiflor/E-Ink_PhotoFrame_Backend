@@ -75,10 +75,13 @@ class Configurator:
 
     def run_gui(self):
         while(1): #TODO make close button evtl
+
+            event, values = self.window.read()
             if self.config["image_sync"] :
                 if self.last_sync is not datetime.today().day:
                     self.panel_manager.sync_image_list(self.imghandler.sync_images())
-            event, values = self.window.read()
+                    self.window["-IMG_LIST-"].update(values=self.imghandler.list_images())
+                    self.update_screen()
             if event != "__TIMEOUT__":
                 if self.debug:
                     print(event,values)
@@ -104,6 +107,8 @@ class Configurator:
                 self.update_screen()
             if event == "sync":
                 self.panel_manager.sync_image_list(self.imghandler.sync_images())
+                self.window["-IMG_LIST-"].update(values=self.imghandler.list_images())
+                self.update_screen()
             if event == "-MODE-":
                 if self.image_is_mapped_to_panel():
                     self.panel_manager.remove_image_from_panel(self.current_panel,self.current_image)
