@@ -97,11 +97,13 @@ class PanelManager:
             return 0
 
     def sync_image_list(self,list):
-        for panel in self.panels:
-            used_images = self.list_images_from_panel(panel)
-            for image in used_images:
-                if image not in list:
-                    self.remove_image_from_panel(panel,image)
+        #TODO find bug - randomly deletes stuff - currently no image is deleatet when removed from the snyc folder
+        if 0:
+            for panel in self.panels:
+                used_images = self.list_images_from_panel(panel)
+                for image in used_images:
+                    if image not in list:
+                        self.remove_image_from_panel(panel,image)
 
 
 
