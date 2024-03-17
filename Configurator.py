@@ -22,6 +22,7 @@ class Configurator:
         self.flth.daemon = True
         self.flth.start()
         self.panel_handlers = []
+        self.panels = []
         self.start_panel_handlers()
         if self.config["image_sync"]:
             self.last_sync = datetime.today().day-1 # needed for nightly updates
@@ -135,11 +136,13 @@ class Configurator:
 
     def start_panel_handlers(self):
         for panel_name in self.panel_manager.list_panels():
-            panel_handle = Thread(target=self.start_panel,args=(self,panel_name))
+            panel_handle = Thread(target=self.start_panel,args=(panel_name,))
+            panel_handle.start()
             self.panel_handlers.append(panel_handle)
 
     def start_panel(self,name):
-        instance = Eink_Panel(name)
+        instance = Eink_Panel(self.panel_manager.eink_config_storage+"/"+name)
+        self.panels.append(instance)
 
 
 if __name__ == "__main__":
