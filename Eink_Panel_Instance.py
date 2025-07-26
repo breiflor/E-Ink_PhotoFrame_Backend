@@ -13,8 +13,10 @@ class Eink_Panel:
         self.config = json.load(open(configfile,))
         mqtt_data = json.load(open(mqtt_settings))
         self.height = 480
+        self.counter = 0
         self.width = 800
         self.quarter_pixels = int(self.height*self.width/4/2)
+        self.ocatal_pixels = int(self.quarter_pixels)
         self.state = "no Connection"
         self.last_update = None
         self.next_image_name = None
@@ -25,10 +27,14 @@ class Eink_Panel:
         self.send_topic = "Eink_frame/"+self.config["name"]+"/send_image"
         self.client = mqtt_client.Client("Eink_Panel_Handler_"+self.config["name"])
         self.image = self.load_next_image()
+        print(len(self.image))
+        print(len(self.image)/8)
+        print(self.ocatal_pixels)
         self.client.on_connect = self.on_connect
         self.client.username_pw_set(mqtt_data["user"], mqtt_data["password"])
         self.client.connect(mqtt_data["broker"], mqtt_data["port"])
         self.client.loop_forever()
+
 
     def __del__(self):
         self.client.loop_stop()
@@ -45,6 +51,7 @@ class Eink_Panel:
         elif msg.topic == self.request_image:
             self.img_request()
         elif msg.topic == self.ack_topic:
+            print(msg.payload.decode())
             self.send_image(msg.payload.decode())
 
     def reset(self):
@@ -57,7 +64,8 @@ class Eink_Panel:
         if self.state == "WAIT":
             if self.last_update is None or  datetime.now() - self.last_update > timedelta(minutes=self.config["refresh"]):
                 self.state = "SENT SECTION 1"
-                data = {"part": 1, "img": self.image[0:self.quarter_pixels-1]}
+                data = {"part": 1, "img": self.image[0:self.ocatal_pixels-1]}
+                ##print(json.dumps(data))
                 self.client.publish(self.send_topic,json.dumps(data))
             else:
                 data = {"error": "Too early request"}
@@ -67,21 +75,44 @@ class Eink_Panel:
     def send_image(self,part):
         if self.state == "SENT SECTION 1" and part == "1" :
             self.state = "SENT SECTION 2"
-            data = {"part": 2, "img": self.image[self.quarter_pixels:(2*self.quarter_pixels-1)]}
-            self.client.publish(self.send_topic,json.dumps(data))
+            data = {"part": 2, "img": self.image[self.ocatal_pixels:(2*self.ocatal_pixels-1)]}
+            #print(json.dumps(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 2" and part == "2" :
             self.state = "SENT SECTION 3"
-            data = {"part": 3, "img": self.image[2*self.quarter_pixels:(3*self.quarter_pixels-1)]}
-            self.client.publish(self.send_topic,json.dumps(data))
+            data = {"part": 3, "img": self.image[2*self.ocatal_pixels:(3*self.ocatal_pixels-1)]}
+            #print(json.dumps(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 3" and part == "3" :
             self.state = "SENT SECTION 4"
-            data = {"part": 4, "img": self.image[3*self.quarter_pixels:]}
-            self.client.publish(self.send_topic,json.dumps(data))
+            data = {"part": 4, "img": self.image[3*self.ocatal_pixels:(4*self.ocatal_pixels-1)]}
+            #print(json.dumps(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 4" and part == "4" :
+            self.state = "SENT SECTION 5"
+            data = {"part": 5, "img": self.image[4*self.ocatal_pixels:(5*self.ocatal_pixels-1)]}
+            #print(json.dumps(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
+        elif self.state == "SENT SECTION 5" and part == "5" :
+            self.state = "SENT SECTION 6"
+            data = {"part": 6, "img": self.image[5*self.ocatal_pixels:(6*self.ocatal_pixels-1)]}
+            #print(json.dumps(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
+        elif self.state == "SENT SECTION 6" and part == "6" :
+            self.state = "SENT SECTION 7"
+            data = {"part": 7, "img": self.image[6*self.ocatal_pixels:(7*self.ocatal_pixels-1)]}
+            print(len(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
+        elif self.state == "SENT SECTION 7" and part == "7" :
+            self.state = "SENT SECTION 8"
+            data = {"part": 8, "img": self.image[7*self.ocatal_pixels:(8*self.ocatal_pixels-1)]}
+            print(len(data))
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
+        elif self.state == "SENT SECTION 8" and part == "8" :
             self.state = "Update Status Infos"
-            data = {"part": 5,"refresh":self.config["refresh"],"image_name":self.next_image_name}
-            self.client.publish(self.send_topic,json.dumps(data))
-        elif self.state == "Update Status Infos" and part == "5":
+            data = {"part": 9,"refresh":self.config["refresh"],"image_name":self.next_image_name}
+            self.client.publish(self.send_topic,json.dumps(data),qos=1)
+        elif self.state == "Update Status Infos" and part == "9":
             self.config = json.load(open(self.configfile,))
             self.config["current_image"] = self.next_image_name
             with open(self.configfile,"wt") as fp:
@@ -103,11 +134,10 @@ class Eink_Panel:
     def serialize(self,img):
         s = ""
         for e in img:
-            if e <32:
-                s= s + chr(e+40)
-            else:
-                s = s+ chr(e)
+             s = s+ e.tobytes().hex().upper()
         return s
 
+
+
 if __name__ == "__main__":
-    panel = Eink_Panel("eink_panel_storage/eink1.json")
+    panel = Eink_Panel("eink_panel_storage/eink2.json")
