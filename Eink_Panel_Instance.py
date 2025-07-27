@@ -10,7 +10,7 @@ class Eink_Panel:
 
     def __init__(self,configfile,mqtt_settings = "config/mqtt_config1.cfg"):
         self.configfile = configfile
-        self.config = json.load(open(configfile,))
+        self.config = json.load(open(configfile))
         mqtt_data = json.load(open(mqtt_settings))
         self.height = 480
         self.counter = 0

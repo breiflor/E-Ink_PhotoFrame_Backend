@@ -1,6 +1,5 @@
 click==8.1.7
 colorama==0.4.6
-Flask==2.2.5
 importlib-metadata==6.7.0
 itsdangerous==2.1.2
 Jinja2==3.1.2
@@ -9,9 +8,6 @@ numpy==1.21.6
 opencv-python==4.7.0.72
 paho-mqtt==1.6.1
 Pillow==9.5.0
-PySimpleGUI==4.60.5
-PySimpleGUIWeb==0.39.0
-remi==2020.3.10
 typing_extensions==4.7.1
 Werkzeug==2.2.3
 zipp==3.15.0

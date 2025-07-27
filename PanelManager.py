@@ -6,6 +6,7 @@ class PanelManager:
     def __init__(self,configfile = "config/panelManager.json"):
         self.config = json.load(open(configfile,))
         self.debug = self.config["debug"]
+        self.use_sync_folder_as_config = self.config["use_sync_folder_as_config"]
         self.eink_config_storage = self.config["eink_panel_storage"]
         self.load_panels()
 
@@ -97,13 +98,16 @@ class PanelManager:
             return 0
 
     def sync_image_list(self,list):
+        if self.use_sync_folder_as_config:
+            for panel in self.panels:
+                used_images = self.list_images_from_panel(panel)
+                for image in list:
+                    if image.strip(Path(image).suffix) not in used_images:
+                        self.add_image_to_panel(panel,image)
         for panel in self.panels:
             used_images = self.list_images_from_panel(panel)
             for image in used_images:
                 generic_filename = image.strip(Path(image).suffix)+".png"
-                for file in list:
-                    if file.strip(".png") == generic_filename:
-                        print("image found")
                 if generic_filename not in list:
                     self.remove_image_from_panel(panel,image)
 
@@ -120,5 +124,5 @@ if __name__ == "__main__":
     #panelhand.remove_image_from_panel("eink1","test_image")
     #panelhand.change_refresh_time("eink1",42)
     #print(panelhand.get_refresh_time("eink1"))
-    imglist = ['20240316_134724.png', 'Carlos_Hochzeit Flo und Hannah-4573.png', 'IMG_20190114_080119_433.png', 'IMG_20190206_133045.png', 'tegernsee.png', 'test_image.png', 'test_image2.png', 'test_image3.png', 'test_image4.png', 'test_image7.png']
+    imglist = ['test_image2.png', 'test_image3.png', 'test_image4.png', 'test_image7.png']
     panelhand.sync_image_list(imglist)

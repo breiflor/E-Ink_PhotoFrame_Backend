@@ -12,10 +12,7 @@ RUN apt-get update -y && \
     apt-get install -y python3 python3-pip && \
     pip3 install --upgrade pip  && \
     pip3 install -r requirements.txt
-#patch remi
-RUN sed -i '43s/.*/import html/' /usr/local/lib/python3.10/dist-packages/remi/gui.py
-RUN sed -i '44s/.*/unescape = html.unescape/' /usr/local/lib/python3.10/dist-packages/remi/gui.py
-RUN  sed -i '30,42 d'  /usr/local/lib/python3.10/dist-packages/remi/gui.py
+
 #include working dirs
 
 #open ports
