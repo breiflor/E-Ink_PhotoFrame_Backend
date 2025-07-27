@@ -6,7 +6,6 @@ import cv2
 import json
 from ImageHandler import *
 from PanelManager import *
-from Uploader import *
 from Eink_Panel_Instance import *
 
 class Configurator:

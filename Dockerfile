@@ -16,7 +16,7 @@ RUN apt-get update -y && \
 #include working dirs
 
 #open ports
-EXPOSE 8080 8081 1883
+EXPOSE 1883 8883
 
 ENV CONFIG_PATH=/E-Ink_PhotoFrame_Backend/config
 ENV STORAGE_PATH=/E-Ink_PhotoFrame_Backend/storage
