@@ -1,4 +1,5 @@
 import json
+import ssl
 from datetime import datetime,timedelta
 
 from paho.mqtt import client as mqtt_client
@@ -27,11 +28,9 @@ class Eink_Panel:
         self.send_topic = "Eink_frame/"+self.config["name"]+"/send_image"
         self.client = mqtt_client.Client("Eink_Panel_Handler_"+self.config["name"])
         self.image = self.load_next_image()
-        print(len(self.image))
-        print(len(self.image)/8)
-        print(self.ocatal_pixels)
         self.client.on_connect = self.on_connect
         self.client.username_pw_set(mqtt_data["user"], mqtt_data["password"])
+        self.client.tls_set(tls_version=ssl.PROTOCOL_TLSv1_2)
         self.client.connect(mqtt_data["broker"], mqtt_data["port"])
         self.client.loop_forever()
 
@@ -62,10 +61,10 @@ class Eink_Panel:
         if self.state == "no Connection":
             self.state = "WAIT"
         if self.state == "WAIT":
-            if self.last_update is None or  datetime.now() - self.last_update > timedelta(minutes=self.config["refresh"]):
+            # you can delete the True if you want to have errors when the client trys to update
+            if self.last_update is None or  datetime.now() - self.last_update > timedelta(minutes=self.config["refresh"]) or True:
                 self.state = "SENT SECTION 1"
                 data = {"part": 1, "img": self.image[0:self.ocatal_pixels-1]}
-                ##print(json.dumps(data))
                 self.client.publish(self.send_topic,json.dumps(data))
             else:
                 data = {"error": "Too early request"}
@@ -76,37 +75,30 @@ class Eink_Panel:
         if self.state == "SENT SECTION 1" and part == "1" :
             self.state = "SENT SECTION 2"
             data = {"part": 2, "img": self.image[self.ocatal_pixels:(2*self.ocatal_pixels-1)]}
-            #print(json.dumps(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 2" and part == "2" :
             self.state = "SENT SECTION 3"
             data = {"part": 3, "img": self.image[2*self.ocatal_pixels:(3*self.ocatal_pixels-1)]}
-            #print(json.dumps(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 3" and part == "3" :
             self.state = "SENT SECTION 4"
             data = {"part": 4, "img": self.image[3*self.ocatal_pixels:(4*self.ocatal_pixels-1)]}
-            #print(json.dumps(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 4" and part == "4" :
             self.state = "SENT SECTION 5"
             data = {"part": 5, "img": self.image[4*self.ocatal_pixels:(5*self.ocatal_pixels-1)]}
-            #print(json.dumps(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 5" and part == "5" :
             self.state = "SENT SECTION 6"
             data = {"part": 6, "img": self.image[5*self.ocatal_pixels:(6*self.ocatal_pixels-1)]}
-            #print(json.dumps(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 6" and part == "6" :
             self.state = "SENT SECTION 7"
             data = {"part": 7, "img": self.image[6*self.ocatal_pixels:(7*self.ocatal_pixels-1)]}
-            print(len(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 7" and part == "7" :
             self.state = "SENT SECTION 8"
             data = {"part": 8, "img": self.image[7*self.ocatal_pixels:(8*self.ocatal_pixels-1)]}
-            print(len(data))
             self.client.publish(self.send_topic,json.dumps(data),qos=1)
         elif self.state == "SENT SECTION 8" and part == "8" :
             self.state = "Update Status Infos"
