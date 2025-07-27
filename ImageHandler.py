@@ -103,4 +103,4 @@ def cli_(cmd,filenames,config):
 if __name__ == "__main__":
     #cli_()
     imhandler =ImageHandler()
-    imhandler.sync_images()
+    print(imhandler.sync_images())

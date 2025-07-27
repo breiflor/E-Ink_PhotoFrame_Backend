@@ -97,24 +97,28 @@ class PanelManager:
             return 0
 
     def sync_image_list(self,list):
-        #TODO find bug - randomly deletes stuff - currently no image is deleatet when removed from the snyc folder
-        if 0:
-            for panel in self.panels:
-                used_images = self.list_images_from_panel(panel)
-                for image in used_images:
-                    if image not in list:
-                        self.remove_image_from_panel(panel,image)
+        for panel in self.panels:
+            used_images = self.list_images_from_panel(panel)
+            for image in used_images:
+                generic_filename = image.strip(Path(image).suffix)+".png"
+                for file in list:
+                    if file.strip(".png") == generic_filename:
+                        print("image found")
+                if generic_filename not in list:
+                    self.remove_image_from_panel(panel,image)
 
 
 
 if __name__ == "__main__":
     panelhand = PanelManager()
     panelhand.load_panels()
-    panelhand.add_panel("test")
-    panelhand.add_image_to_panel("test","hallo")
-    panelhand.remove_panel("test")
-    panelhand.add_panel("eink1",["test_image","test_image2"])
-    print(panelhand.list_images_from_panel("eink1"))
-    panelhand.remove_image_from_panel("eink1","test_image")
-    panelhand.change_refresh_time("eink1",42)
-    print(panelhand.get_refresh_time("eink1"))
+    #panelhand.add_panel("test")
+    #panelhand.add_image_to_panel("test","hallo")
+    #panelhand.remove_panel("test")
+    #panelhand.add_panel("eink1",["test_image","test_image2"])
+    #print(panelhand.list_images_from_panel("eink1"))
+    #panelhand.remove_image_from_panel("eink1","test_image")
+    #panelhand.change_refresh_time("eink1",42)
+    #print(panelhand.get_refresh_time("eink1"))
+    imglist = ['20240316_134724.png', 'Carlos_Hochzeit Flo und Hannah-4573.png', 'IMG_20190114_080119_433.png', 'IMG_20190206_133045.png', 'tegernsee.png', 'test_image.png', 'test_image2.png', 'test_image3.png', 'test_image4.png', 'test_image7.png']
+    panelhand.sync_image_list(imglist)
