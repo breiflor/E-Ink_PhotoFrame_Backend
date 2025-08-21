@@ -50,7 +50,6 @@ class Eink_Panel:
         elif msg.topic == self.request_image:
             self.img_request()
         elif msg.topic == self.ack_topic:
-            print(msg.payload.decode())
             self.send_image(msg.payload.decode())
 
     def reset(self):
@@ -69,6 +68,11 @@ class Eink_Panel:
             else:
                 data = {"error": "Too early request"}
                 self.client.publish(self.send_topic,json.dumps(data))
+        else:
+            # handling the error that the panel connection did break - and allows for a fresh restart.
+            self.state = "SENT SECTION 1"
+            data = {"part": 1, "img": self.image[0:self.ocatal_pixels - 1]}
+            self.client.publish(self.send_topic, json.dumps(data))
 
 
     def send_image(self,part):
@@ -132,4 +136,4 @@ class Eink_Panel:
 
 
 if __name__ == "__main__":
-    panel = Eink_Panel("eink_panel_storage/eink2.json")
+    panel = Eink_Panel("eink_panel_storage/eink1.json")
