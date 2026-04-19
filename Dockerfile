@@ -1,26 +1,26 @@
 FROM ubuntu:22.04
 
-# Install Git
+# Install dependencies needed by OpenCV
 RUN apt-get update -y && \
-    apt-get install -y git libglib2.0-0 libsm6 libxrender1 libxext6 libgl1-mesa-glx nano
+    apt-get install -y git libglib2.0-0 libsm6 libxrender1 libxext6 libgl1-mesa-glx nano python3 python3-pip && \
+    pip3 install --upgrade pip
 
-RUN git clone https://github.com/breiflor/E-Ink_PhotoFrame_Backend
+# Create workdir
+WORKDIR /E-Ink_PhotoFrame_Backend
 
-WORKDIR E-Ink_PhotoFrame_Backend
-#install requirements
-RUN apt-get update -y && \
-    apt-get install -y python3 python3-pip && \
-    pip3 install --upgrade pip  && \
-    pip3 install -r requirements.txt
+# Copy requirement list and install Python dependencies
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
 
-#include working dirs
+# Copy application files
+COPY . /E-Ink_PhotoFrame_Backend
 
-#open ports
-EXPOSE 1883 8883
+# Open ports (MQTT and Web Uploader)
+EXPOSE 1883 8883 8081
 
 ENV CONFIG_PATH=/E-Ink_PhotoFrame_Backend/config
 ENV STORAGE_PATH=/E-Ink_PhotoFrame_Backend/storage
 ENV PANEL_PATH=/E-Ink_PhotoFrame_Backend/panels
 
-#execute script
+# Execute script
 CMD ["python3", "Configurator.py"]

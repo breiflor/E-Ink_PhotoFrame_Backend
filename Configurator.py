@@ -7,6 +7,7 @@ import json
 from ImageHandler import *
 from PanelManager import *
 from Eink_Panel_Instance import *
+from Uploader import app, setup_app
 
 class Configurator:
 
@@ -19,10 +20,28 @@ class Configurator:
         self.panel_handlers = []
         self.panels = []
         self.start_panel_handlers()
+
+        # Setup and start uploader
+        self.start_uploader()
+
         if self.config["image_sync"]:
             self.last_sync = datetime.today().day-1 # needed for nightly updates
         self.loop()
 
+
+    def start_uploader(self):
+        setup_app(self.imghandler, self.panel_manager)
+        ip = self.config.get("ip", "0.0.0.0")
+        port = int(self.config.get("upload_port", "8081"))
+
+        uploader_thread = Thread(target=self._run_uploader, args=(ip, port), daemon=True)
+        uploader_thread.start()
+        if self.debug:
+            print(f"Started web uploader on {ip}:{port}")
+
+    def _run_uploader(self, ip, port):
+        # We need use_reloader=False because we're running it inside a thread
+        app.run(host=ip, port=port, use_reloader=False)
 
     def loop(self):
         while(1): #TODO make close button evtl
@@ -34,7 +53,7 @@ class Configurator:
 
     def start_panel_handlers(self):
         for panel_name in self.panel_manager.list_panels():
-            panel_handle = Thread(target=self.start_panel,args=(panel_name,))
+            panel_handle = Thread(target=self.start_panel,args=(panel_name,), daemon=True)
             panel_handle.start()
             self.panel_handlers.append(panel_handle)
 
