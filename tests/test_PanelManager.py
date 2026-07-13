@@ -119,3 +119,38 @@ def test_sync_image_list(temp_env):
     assert "img1" not in images
     assert "img2" in images
     assert "img3" in images
+
+def test_add_image_to_nonexistent_panel(temp_env):
+    config_file, storage_dir = temp_env
+    pm = PanelManager(configfile=str(config_file))
+
+    success = pm.add_image_to_panel("nonexistent_panel", "img1.png")
+    assert success is False
+
+def test_remove_image_from_nonexistent_panel(temp_env):
+    config_file, storage_dir = temp_env
+    pm = PanelManager(configfile=str(config_file))
+
+    success = pm.remove_image_from_panel("nonexistent_panel", "img1.png")
+    assert success is False
+
+def test_list_images_from_nonexistent_panel(temp_env):
+    config_file, storage_dir = temp_env
+    pm = PanelManager(configfile=str(config_file))
+
+    images = pm.list_images_from_panel("nonexistent_panel")
+    assert images == []
+
+def test_change_refresh_time_nonexistent_panel(temp_env):
+    config_file, storage_dir = temp_env
+    pm = PanelManager(configfile=str(config_file))
+
+    success = pm.change_refresh_time("nonexistent_panel", 120)
+    assert success is False
+
+def test_get_refresh_time_nonexistent_panel(temp_env):
+    config_file, storage_dir = temp_env
+    pm = PanelManager(configfile=str(config_file))
+
+    refresh = pm.get_refresh_time("nonexistent_panel")
+    assert refresh == 0
