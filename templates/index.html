@@ -1,12 +1,94 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Bild hochladen</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Ink PhotoFrame Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 40px; }
+        .image-gallery { display: flex; flex-wrap: wrap; gap: 20px; }
+        .image-card { border: 1px solid #ccc; padding: 10px; border-radius: 5px; text-align: center; }
+        .image-card img { max-width: 200px; max-height: 200px; display: block; margin-bottom: 10px; }
+        .panel-list { display: flex; flex-direction: column; gap: 20px; }
+        .panel-card { border: 1px solid #333; padding: 15px; border-radius: 5px; }
+        .panel-images { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .panel-image-item { border: 1px dashed #666; padding: 5px; border-radius: 3px; display: flex; align-items: center; gap: 10px;}
+        .panel-image-item img { max-width: 100px; max-height: 100px; }
+        .action-form { margin-top: 10px; }
+        select, button, input { padding: 5px; }
+    </style>
 </head>
 <body>
-<h1>Bild hochladen</h1>
-<form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="image" accept="image/*">
-    <input type="submit" value="Hochladen">
-</form>
+
+    <h1>E-Ink PhotoFrame Dashboard</h1>
+
+    <div class="section">
+        <h2>Upload New Image</h2>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required>
+            <input type="text" name="image_name" placeholder="Image name (optional)">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Available Images</h2>
+        <div class="image-gallery">
+            {% for image in images %}
+            <div class="image-card">
+                <img src="/image/{{ image }}" alt="{{ image }}">
+                <div>{{ image }}</div>
+            </div>
+            {% else %}
+            <p>No images uploaded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Panels</h2>
+        <div class="panel-list">
+            {% for panel in panels_info %}
+            <div class="panel-card">
+                <h3>Panel: {{ panel.name }}</h3>
+                <p>Refresh interval: {{ panel.refresh }} minutes</p>
+
+                <h4>Images on Panel</h4>
+                <div class="panel-images">
+                    {% for img in panel.images %}
+                    <div class="panel-image-item">
+                        <img src="/image/{{ img }}.png" alt="{{ img }}">
+                        <span>{{ img }}</span>
+                        <form action="/remove_from_panel" method="post" style="display:inline;">
+                            <input type="hidden" name="panel_name" value="{{ panel.name }}">
+                            <input type="hidden" name="image_name" value="{{ img }}">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <p>No images assigned to this panel.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="action-form">
+                    <form action="/append_to_panel" method="post">
+                        <input type="hidden" name="panel_name" value="{{ panel.name }}">
+                        <select name="image_name" required>
+                            <option value="">-- Select an image to append --</option>
+                            {% for img in images %}
+                            <option value="{{ img }}">{{ img }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Append Image</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <p>No panels configured.</p>
+            {% endfor %}
+        </div>
+    </div>
+
 </body>
 </html>
